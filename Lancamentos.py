@@ -7,6 +7,9 @@ import threading  # Para rodar a detecção de ESC em paralelo
 # Variável global para interrupção
 interromper = False
 
+# Tempo médio gasto manualmente por lançamento (em segundos)
+tempo_por_lancamento_manual = 25.61
+
 # Função para monitorar a tecla ESC
 def monitorar_tecla():
     global interromper
@@ -19,6 +22,7 @@ threading.Thread(target=monitorar_tecla, daemon=True).start()
 
 # Carregar a planilha CSV (ajuste o nome do arquivo)
 df = pd.read_csv("./lancamentos.csv", sep=";", dtype={"Cta": str, "Vl_lancamento": str})  
+total_lancamentos = len(df)
 
 # 🕒 Contagem regressiva antes de iniciar
 print("⚠️ Prepare a tela do TOTVS! O sistema iniciará em:")
@@ -43,7 +47,7 @@ for index, row in df.iterrows():
     valor = row["Vl_lancamento"]
     data = "31/12/2024"  # Data fixa para todos os lançamentos
 
-    print(f"📌 Lançando {index + 1}/{len(df)} | Conta: {cta} | Valor: {valor}")
+    print(f"📌 Lançando {index + 1}/{total_lancamentos} | Conta: {cta} | Valor: {valor}")
 
     # 1️⃣ Limpar a tela
     pyautogui.press("f2")
@@ -100,9 +104,19 @@ for index, row in df.iterrows():
 # ⏳ Capturar o tempo final
 tempo_fim = time.time()
 
-# 🕒 Calcular o tempo total
-tempo_total = tempo_fim - tempo_inicio
+# 🕒 Calcular o tempo total gasto pelo script
+tempo_total_script = tempo_fim - tempo_inicio
 
-# 📌 Exibir tempo total formatado
-minutos, segundos = divmod(tempo_total, 60)
-print(f"✅ Lançamentos finalizados em {int(minutos)} min e {segundos:.2f} segundos!")
+# ⏳ Calcular o tempo que seria gasto manualmente
+tempo_total_manual = total_lancamentos * tempo_por_lancamento_manual
+
+# ⏳ Calcular o tempo economizado
+tempo_economizado = tempo_total_manual - tempo_total_script
+
+# 📌 Exibir resultados formatados
+minutos_script, segundos_script = divmod(tempo_total_script, 60)
+minutos_economizados, segundos_economizados = divmod(tempo_economizado, 60)
+
+print(f"\n✅ Lançamentos finalizados em {int(minutos_script)} min e {segundos_script:.2f} segundos!")
+print(f"🕒 Se fosse manualmente, levaria {int(tempo_total_manual // 60)} min e {tempo_total_manual % 60:.2f} segundos.")
+print(f"💰 Tempo economizado: {int(minutos_economizados)} min e {segundos_economizados:.2f} segundos! 🚀")
