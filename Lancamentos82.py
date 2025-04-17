@@ -1,29 +1,30 @@
 import pyautogui
 import time
 import pandas as pd
-import keyboard
-import threading
+import keyboard  # Para detectar a tecla de interrupção
+import threading  # Para rodar a detecção de ESC em paralelo
 
+# Variável global para interrupção
 interromper = False
 
 # Tempo médio gasto manualmente por lançamento (em segundos)
-tempo_por_lancamento_manual = 25.61
+tempo_por_lancamento_manual = 26.61
 
 # Função para monitorar a tecla ESC
 def monitorar_tecla():
     global interromper
-    keyboard.wait("esc")
+    keyboard.wait("esc")  # Espera até que ESC seja pressionado
     interromper = True
     print("\n🛑 Interrompido pelo usuário!")
 
-
+# Iniciar monitoramento de ESC em uma thread separada
 threading.Thread(target=monitorar_tecla, daemon=True).start()
 
-
-df = pd.read_csv("./lancamentos.csv", sep=";", dtype={"Cta": str, "Vl_lancamento": str})  
+# Carregar a planilha CSV (ajuste o nome do arquivo)
+df = pd.read_csv("./lancamentos82.csv", sep=";", dtype={"Cta": str, "Vl_lancamento": str})  
 total_lancamentos = len(df)
 
-
+# 🕒 Contagem regressiva antes de iniciar
 print("⚠️ Prepare a tela do TOTVS! O sistema iniciará em:")
 for i in range(5, 0, -1):
     if interromper:
@@ -33,85 +34,98 @@ for i in range(5, 0, -1):
     time.sleep(1)
 
 print("🚀 Iniciando lançamentos...")
-time.sleep(2)
+time.sleep(2)  # Pequena pausa para transição
 
+# ⏳ Capturar o tempo de início
 tempo_inicio = time.time()
 
 for index, row in df.iterrows():
     if interromper:
-        break
+        break  # Se ESC for pressionado, sai do loop
 
     cta = row["Cta"]
     valor = row["Vl_lancamento"]
-    data = "01/01/2024"
+    data = "31/12/2024"  # Data fixa para todos os lançamentos
 
     print(f"📌 Lançando {index + 1}/{total_lancamentos} | Conta: {cta} | Valor: {valor}")
 
-    #Limpa a tela
+    # 1️⃣ Limpar a tela
     pyautogui.press("f2")
     time.sleep(0.5)
 
-    #Preenche Cta
+    # 2️⃣ Preencher Cta
     pyautogui.click(x=138, y=158)
     pyautogui.write(cta)
     time.sleep(0.5)
 
-    #Preenche Data
+    # 3️⃣ Preencher Data
     pyautogui.click(x=147, y=254)
     pyautogui.write(data)
     time.sleep(0.5)
     pyautogui.press("tab")
 
-    #Preenche Espécie ("A" e tab)
-    pyautogui.write("A")
-    time.sleep(0.5)
+    # 4️⃣ Preencher Espécie ("A" e tab)
+    pyautogui.write("C")
+    time.sleep(0.2)
+    pyautogui.write("C")
+    time.sleep(0.2)
+    pyautogui.write("C")
+    time.sleep(0.2)
+    pyautogui.write("C")
+    time.sleep(0.2)
+    pyautogui.write("C")
+    time.sleep(0.2)
+    pyautogui.write("C")
+    time.sleep(0.2)
+    pyautogui.write("C")
+    time.sleep(0.2)
     pyautogui.press("tab")
 
-    #Preenche Valor do Lançamento
+    # 5️⃣ Preencher Valor do Lançamento
     pyautogui.write(valor)
     time.sleep(0.5)
     pyautogui.press("tab")
 
-    #Preencher Documento ("LUCRO" e tab)
-    pyautogui.write("ESTORNO")
+    # 6️⃣ Preencher Documento ("LUCRO" e tab)
+    pyautogui.write("BX SALDO CREDEV")
     time.sleep(0.5)
     pyautogui.press("tab")
 
-    #Preenche Histórico Auxiliar ("LUCRO" e tab)
-    pyautogui.write("DUPLICIDADE")
+    # 7️⃣ Preencher Histórico Auxiliar ("LUCRO" e tab)
+    pyautogui.write("LUCRO")
     time.sleep(0.5)
     pyautogui.press("tab")
 
-    #Preenche Código Histórico ("76" e tab)
-    pyautogui.write("75")
+    # 8️⃣ Preencher Código Histórico ("82" e tab)
+    pyautogui.write("82")
     time.sleep(0.5)
     pyautogui.press("tab")
 
-    #Clica em Confirmar
+    # 9️⃣ Clicar em Confirmar
     pyautogui.click(x=935, y=663)
     time.sleep(0.8)  # Aguardar processamento
 
-    #Aperta Enter para fechar mensagem
+    # 🔟 Apertar Enter para fechar mensagem
     pyautogui.press("enter")
     time.sleep(0.8)
 
-    #Repete o ciclo limpando a tela
+    # 1️⃣1️⃣ Repetir o ciclo limpando a tela
     pyautogui.press("f2")
     time.sleep(0.8)
 
-#Captura o tempo final
+# ⏳ Capturar o tempo final
 tempo_fim = time.time()
 
-#Calcula o tempo total gasto pelo script
+# 🕒 Calcular o tempo total gasto pelo script
 tempo_total_script = tempo_fim - tempo_inicio
 
-#Calcula o tempo que seria gasto manualmente
+# ⏳ Calcular o tempo que seria gasto manualmente
 tempo_total_manual = total_lancamentos * tempo_por_lancamento_manual
 
-#Calcula o tempo economizado
+# ⏳ Calcular o tempo economizado
 tempo_economizado = tempo_total_manual - tempo_total_script
 
-#Exibir resultados formatados
+# 📌 Exibir resultados formatados
 minutos_script, segundos_script = divmod(tempo_total_script, 60)
 minutos_economizados, segundos_economizados = divmod(tempo_economizado, 60)
 
